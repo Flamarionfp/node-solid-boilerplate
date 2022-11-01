@@ -6,6 +6,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "lint-staged": {
+    ".ts": "yarn eslint --fix"
+  },
   "scripts": {
     "build": "tsc",
     "husky:prepare": "husky install",
