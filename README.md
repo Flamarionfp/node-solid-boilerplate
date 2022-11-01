@@ -6,7 +6,7 @@ See on Github: [Node Solid Boilerplate](https://github.com/Flamarionfp/node-soli
 
 NODE SOLID BOILERPLATE using TYPESCRIPT.
 
-This template includes eslint, prettier, husky, lint staged jest, dotenv with an opinative architecture based on SOLID principle.
+This template includes eslint, prettier, husky, jest and dotenv with an opinative architecture based on SOLID principle.
 
 ## Scripts
 
