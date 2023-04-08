@@ -1,25 +1,20 @@
 import sqlite3 from 'sqlite3';
+import { Request, Response } from 'express';
 
-interface CreateUserProps {
-  fullName: string;
-  email: string;
-  password: string;
-}
-
-export class User {
-  create = async (props: CreateUserProps): Promise<void> => {
-    const { fullName, email, password } = props;
+class CreateUserController {
+  handle = async (req: Request, res: Response): Promise<Response | void> => {
+    const { fullName, email, password } = req.body;
 
     if (password.length < 8) {
-      throw new Error('Senha muito curta');
+      return res.status(400).send('Senha muito curta');
     }
 
     const notAllowedCharacters = ['*', '=', '/', '.'];
 
     if (notAllowedCharacters.includes(password)) {
-      throw new Error(
-        `Sua senha não deve possuir ${notAllowedCharacters.join(', ')}`,
-      );
+      return res
+        .status(400)
+        .send(`Sua senha não deve possuir ${notAllowedCharacters.join(', ')}`);
     }
 
     const necessaryPatterns = [
@@ -39,25 +34,27 @@ export class User {
 
     for (const { rule, pattern } of necessaryPatterns) {
       if (!password.match(pattern)) {
-        throw new Error(rule);
+        return res.status(400).send(rule);
       }
     }
 
     if (!email.includes('@') || email.length < 10) {
-      throw new Error('Email inválido');
+      return res.status(400).send('Email inválido');
     }
 
     const [name, ...rest] = fullName.split(' ');
 
     if (!rest.length) {
-      throw new Error('É necessário o nome completo');
+      return res.status(400).send('É necessário o nome completo');
     }
 
     const lastName = rest.join(' ');
 
     const database = new sqlite3.Database('./database.db', (err) => {
       if (err) {
-        console.error(`Falha ao conectar no banco de dados ${err.message}`);
+        return res
+          .status(500)
+          .send(`Falha ao conectar no banco de dados ${err.message}`);
       }
       console.log('Conectado ao banco de dados SQLite.');
     });
@@ -72,27 +69,29 @@ export class User {
           password TEXT
         );`,
       );
-
-      database.get(
-        `SELECT * FROM users WHERE email = ?`,
-        [email],
-        (err, row) => {
-          if (err) {
-            throw err;
-          }
-
-          if (row) {
-            throw new Error('Usuário já cadastrado');
-          }
-        },
-      );
-
-      database.run(
-        `INSERT INTO users (name, lastName, email, password) VALUES (?,?,?,?)`,
-        [name, lastName, email, password],
-      );
     });
 
-    database.close();
+    database.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
+      if (err) {
+        return res
+          .status(500)
+          .send(`Falha ao consultar o banco de dados ${err.message}`);
+      }
+
+      if (row) {
+        return res.status(400).send('Usuário já cadastrado');
+      } else {
+        database.run(
+          `INSERT INTO users (name, lastName, email, password) VALUES (?,?,?,?)`,
+          [name, lastName, email, password],
+        );
+
+        return res.status(201).send('Usuário criado com sucesso');
+      }
+    });
   };
 }
+
+const createUserController = new CreateUserController();
+
+export { createUserController };
