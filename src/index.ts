@@ -1,4 +1,19 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { User } from './violacao';
 
-console.log(process.env.KEY);
+class Main {
+  constructor() {
+    const user = new User();
+
+    try {
+      user.create({
+        fullName: 'John Smith',
+        email: 'user@example.com',
+        password: '12345678Aa',
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+export default new Main();
