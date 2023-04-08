@@ -42,7 +42,11 @@ class CreateUserController {
       return res.status(400).send('Email inválido');
     }
 
-    const [name, ...rest] = fullName.split(' ');
+    const [name, ...rest] = fullName.trim().split(' ');
+
+    if (name.length < 3) {
+      return res.status(400).send('Nome inválido');
+    }
 
     if (!rest.length) {
       return res.status(400).send('É necessário o nome completo');

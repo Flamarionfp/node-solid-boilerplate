@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
-import { createUserController } from './violacao';
-// import { solucao } from './violacao';
+// import { createUserController } from './violacao';
+import { createUserController } from './solucao';
 
 class App {
   public express: express.Application;
