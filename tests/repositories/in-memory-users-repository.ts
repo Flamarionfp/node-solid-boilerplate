@@ -1,16 +1,33 @@
-import { UsersRepository } from '../../src/application/repositories/UsersRepository';
-import { User } from '../../src/domain/entities/user';
+import { UserRepository } from '../../src/solucao/app/repositories/user';
+import { User } from '../../src/solucao/app/domain/entities/user';
+import { AppError } from '../../src/solucao/core/error/app-error';
 
-export class InMemoryUsersRepository implements UsersRepository {
-  public items: User[] = [];
+interface UserProps {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+export class InMemoryUsersRepository implements UserRepository {
+  public users: UserProps[] = [];
 
-  async findById(id: string): Promise<User | null> {
-    const user = this.items.find((user) => user.id === id);
+  async create(user: User): Promise<void> {
+    const existingUser = this.users.find(
+      ({ email }) => email === user.props.email.value,
+    );
 
-    if (!user) {
-      return null;
+    console.log('DEBUG users', this.users);
+    console.log('DEBUG existingUser', existingUser);
+
+    if (existingUser) {
+      throw new AppError('Usuário já cadastrado');
     }
 
-    return user;
+    this.users.push({
+      firstName: user.props.fullName.firstName,
+      lastName: user.props.fullName.lastName,
+      email: user.props.email.value,
+      password: user.props.password.value,
+    });
   }
 }

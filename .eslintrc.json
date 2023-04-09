@@ -26,5 +26,10 @@
     ],
     "rules": {
         "@typescript-eslint/no-explicit-any": "off"
-    }
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        "tests"
+    ]
 }
